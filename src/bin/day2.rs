@@ -12,10 +12,8 @@ struct Pass {
     password: String,
 }
 
-pub fn main() {
-    if common::run_test(DAY, &run) {
-        common::run(DAY, &run);
-    }
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    common::run(DAY, &run)
 }
 
 #[test]
@@ -57,6 +55,6 @@ fn run(lines: &Vec<String>) -> AOCResult {
     }
     println!("{} sled valid passwords", sled_valid_count);
     println!("{} valid passwords", valid_count);
-    return Ok((Some(sled_valid_count.to_string()), Some(valid_count.to_string())));
+    return Ok([Some(sled_valid_count.to_string()), Some(valid_count.to_string())]);
 }
 

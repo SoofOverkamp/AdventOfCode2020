@@ -3,14 +3,12 @@ use aoc2020_niels_overkamp::common::AOCResult;
 
 const DAY: &str = "day1";
 
-fn main() {
-    if common::run_test(DAY, &run) {
-        common::run(DAY, &run);
-    }
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    common::run(DAY, &run)
 }
 
 pub fn run(input: &Vec<String>) -> AOCResult {
-    Ok((run1(input), run2(input)))
+    Ok([run1(input), run2(input)])
 }
 
 #[test]

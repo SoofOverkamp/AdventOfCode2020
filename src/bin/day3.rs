@@ -4,9 +4,8 @@ use aoc2020_niels_overkamp::common::AOCResult;
 const DAY: &str = "day3";
 
 
-fn main() {
-    common::run_test(DAY, &prog);
-    common::run(DAY, &prog);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    common::run(DAY, &prog)
 }
 
 #[test]
@@ -15,7 +14,7 @@ pub fn test_day3() {
 }
 
 fn prog(input: &Vec<String>) -> AOCResult {
-    return Ok((run1(input), run2(input)));
+    return Ok([run1(input), run2(input)]);
 }
 
 fn run(input: &Vec<String>, dx: usize, dy: usize) -> usize {

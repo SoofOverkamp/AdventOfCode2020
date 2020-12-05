@@ -4,11 +4,8 @@ use aoc2020_niels_overkamp::common::{AOCResult};
 
 const DAY: &str = "day4";
 
-
-fn main() {
-    if common::run_test(DAY, &run) {
-        common::run(DAY, &run);
-    }
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    common::run(DAY, &run)
 }
 
 
@@ -163,5 +160,5 @@ fn run(input: &Vec<String>) -> AOCResult {
             valid_count += 1;
         }
     }
-    return Ok((Some(all_fields_count.to_string()), Some(valid_count.to_string())));
+    return Ok([Some(all_fields_count.to_string()), Some(valid_count.to_string())]);
 }
