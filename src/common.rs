@@ -218,26 +218,3 @@ fn files_to_vec<'a>(day: &str, input_path: &str) -> Result<Vec<(String, Vec<Stri
 
     return Ok(results);
 }
-
-// #[derive(Debug)]
-// pub enum FileParseError<F: str::FromStr> {
-//     IoError(io::Error),
-//     ParseError(F::Err),
-// }
-//
-// pub fn parse_lines<'a, P, F: 'a, I>(filename: P) -> I
-//     where P: AsRef<Path>, F: str::FromStr, I: iter::FromIterator<&'a F>, <F as str::FromStr>::Err: Debug  {
-//     //
-//     // let lines = read_lines::<P>(filename);
-//     // let result: Result<_, FileParseError<F>> = lines.map(|l| {
-//     //     match l {
-//     //         io::Result::Ok(s) => s.trim().parse().map_err(|e| ParseError(e)),
-//     //         io::Result::Err(e) => Err(IoError(e))
-//     //     }
-//     // }).collect();
-//     let result: &[F; 1] = &["5".parse().expect("")];
-//
-//     let result: slice::Iter<'a, F> = result.into_iter();
-//     let result = I::from_iter(result);
-//     return result;
-// }
