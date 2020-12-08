@@ -1,0 +1,106 @@
+use aoc2020_niels_overkamp::common::{self, AOCResult};
+use std::collections::HashMap;
+use std::error;
+use std::num::ParseIntError;
+
+const DAY: &str = "day7";
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    common::run(DAY, &run)
+}
+
+pub fn run<'a>(input: &Vec<String>) -> AOCResult {
+    let re = regex::Regex::new(r"([\w\s]+) bags contain (?:no other bags.|(\d+) ([\w\s]+) bags?(?:, (\d+) ([\w\s]+) bags?.)?.)")?;
+    let mut string_bags = HashMap::with_capacity(input.len());
+    for line in input {
+        let captures = re.captures(line).ok_or(format!("Regex match failed on {}", line))?;
+        let bag = captures.get(1).unwrap().as_str();
+        let contained_bag_1_count: Option<Result<_, ParseIntError>> = captures.get(2).map(|c| c.as_str().parse());
+        if let Some(Err(e)) = &contained_bag_1_count {
+            Err(Box::new(e.clone()))?;
+        }
+        let contained_bag_1_count = contained_bag_1_count.map(|c| c.unwrap());
+        let contained_bag_1 = captures.get(3);
+        let contained_bag_2_count: Option<Result<_, ParseIntError>> = captures.get(4).map(|c| c.as_str().parse());
+        if let Some(Err(e)) = &contained_bag_2_count {
+            return Err(Box::new(e.clone()))?;
+        }
+        let contained_bag_2_count = contained_bag_2_count.map(|c| c.unwrap());
+        let contained_bag_2 = captures.get(5);
+        let bag: StringBag = StringBag {
+            name: bag.to_owned(),
+            contains: [
+                contained_bag_1.map(|b| (contained_bag_1_count.unwrap(), b.as_str().to_owned())),
+                contained_bag_2.map(|b| (contained_bag_2_count.unwrap(), b.as_str().to_owned())),
+            ]
+        };
+        string_bags.insert(bag.name.clone(), bag);
+    }
+
+    let mut bags = HashMap::with_capacity(input.len());
+
+    let mut bags_ref = &mut bags;
+    for (_, string_bag) in &string_bags {
+        bags_ref = build_bag_rec(string_bag, bags_ref, &string_bags);
+    }
+
+    let ancestor_bag_count = bags_ref.values().filter(|b| b.contains("shiny gold")).count();
+
+    return Ok([Some(ancestor_bag_count.to_string()), None]);
+}
+
+fn build_bag_rec<'t>(string_bag: &StringBag, mut bags: &'t mut HashMap<String, Bag<'t>>, string_bags: &HashMap<String, StringBag>) -> &'t mut HashMap<String, Bag<'t>> {
+    if !(&bags).contains_key(&string_bag.name) {
+
+        let bag = Bag {
+            name: string_bag.name.clone(),
+            contains: [Box::new(None), Box::new(None)]
+        };
+        bags.insert(bag.name.clone(), bag);
+
+        if let Some((count, child)) = &string_bag.contains[0] {
+            if !(&bags).contains_key(child) {
+                bags = build_bag_rec(&string_bags[child], bags, string_bags);
+            }
+            let child: &'t Bag<'t> = &bags[child];
+            let child = Box::new(Some((count.to_owned(), child)));
+            bags.get_mut(&string_bag.name).unwrap().contains[0] = child;
+        }
+
+        if let Some((count, child)) = &string_bag.contains[1] {
+            if !(&bags).contains_key(child) {
+                bags = build_bag_rec(&string_bags[child], bags, string_bags);
+            }
+            bags.get_mut(&string_bag.name).unwrap().contains[1] = Box::new(Some((count.to_owned(), &bags[child])));
+        }
+
+    }
+    return bags;
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
+struct StringBag {
+    name: String,
+    contains: [Option<(u32, String)>; 2],
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
+struct Bag<'a> {
+    name: String,
+    contains: [Box<Option<(u32, &'a Bag<'a>)>>; 2],
+}
+
+impl <'a> Bag<'a> {
+    pub fn contains(&self, name: &str) -> bool {
+        self.name.as_str() == name ||
+            self.contains[0].map(|b| b.1.contains(name)).unwrap_or(false) ||
+            self.contains[1].map(|b| b.1.contains(name)).unwrap_or(false)
+    }
+}
+
+
+
+#[test]
+pub fn test_day7() {
+    assert!(common::run_test(DAY, &run))
+}

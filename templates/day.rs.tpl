@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn run(input: &Vec<String>) -> AOCResult {
-    Ok((None, None))
+    Ok([None, None])
 }
 
 #[test]
