@@ -1,7 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
 use aoc2020_niels_overkamp::common::{self, AOCResult};
-use std::num::ParseIntError;
 
 const DAY: &str = "day7";
 

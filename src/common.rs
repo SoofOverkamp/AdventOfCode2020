@@ -1,8 +1,8 @@
 use std::{fs, str};
-use std::fs::{File};
+use std::error::Error;
+use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
-use std::error::Error;
 
 pub type AOCResult = Result<[Option<String>; 2], Box<dyn Error>>;
 
@@ -34,11 +34,11 @@ pub fn run<F: AOCProgram>(day: &str, prog: &F) -> Result<(), Box<dyn Error>> {
 
     let result = prog.run(&input);
 
-    let output: Result<String, Box<dyn Error>>= match result {
+    let output: Result<String, Box<dyn Error>> = match result {
         Err(e) => {
             let res = format!("Failed on input {:?} with error {:?}", &input, e).into();
             return Err(res);
-        },
+        }
         Ok(result) =>
             if part.is_none() {
                 match &result {
@@ -54,8 +54,8 @@ pub fn run<F: AOCProgram>(day: &str, prog: &F) -> Result<(), Box<dyn Error>> {
                     None => {
                         let res = format!("Part {} not implemented", part).into();
                         return Err(res);
-                    },
-                    Some(s)=> Ok(s.to_owned())
+                    }
+                    Some(s) => Ok(s.to_owned())
                 }
             }
     };
@@ -86,10 +86,10 @@ pub fn run_prog<F: AOCProgram>(day: &str, prog: &F) {
         match result {
             Err(e) => println!("{}: Failed on input {:?} with error {:?}", path, &input, e),
             Ok(result) => match &result {
-                [Some(o1), Some(o2)] => println!("{}:\n\t1:{}\n\t2:{}",path, o1, o2),
-                [Some(o1), None] => println!("{}:\n\t1:{}",path, o1),
-                [None, Some(o2)] => println!("{}:\n\t2:{}",path, o2),
-                [None, None] => println!("{}: No output",path)
+                [Some(o1), Some(o2)] => println!("{}:\n\t1:{}\n\t2:{}", path, o1, o2),
+                [Some(o1), None] => println!("{}:\n\t1:{}", path, o1),
+                [None, Some(o2)] => println!("{}:\n\t2:{}", path, o2),
+                [None, None] => println!("{}: No output", path)
             }
         }
     }
@@ -134,7 +134,6 @@ pub fn run_test<F: AOCProgram>(day: &str, prog: &F) -> bool {
 }
 
 fn test<F: AOCProgram>(prog: &F, input: &Vec<String>, expected: [Option<&str>; 2], path: &str) -> [Option<bool>; 2] {
-
     let result = prog.run(input);
     if result.is_err() {
         println!("{}: Program failed on input {:?} with error {:?}",
@@ -182,7 +181,7 @@ fn test<F: AOCProgram>(prog: &F, input: &Vec<String>, expected: [Option<&str>; 2
         }
     }
 
-    return [succeeded[0].ok(), succeeded[1].ok()]
+    return [succeeded[0].ok(), succeeded[1].ok()];
 }
 
 fn files_to_vec<'a>(day: &str, input_path: &str) -> Result<Vec<(String, Vec<String>)>, Box<dyn Error>> {
@@ -190,7 +189,7 @@ fn files_to_vec<'a>(day: &str, input_path: &str) -> Result<Vec<(String, Vec<Stri
 
     let file_name_re = regex::Regex::new(&format!(r"{}.*(?:.txt)?", day))?;
 
-    let results = dir.map::<io::Result<_>,_>(|f| {
+    let results = dir.map::<io::Result<_>, _>(|f| {
         let f = f?;
 
         if !f.metadata()?.is_file() {
@@ -206,7 +205,7 @@ fn files_to_vec<'a>(day: &str, input_path: &str) -> Result<Vec<(String, Vec<Stri
         }
         let file_name = String::from(file_name.unwrap());
 
-        return Ok(Some((file_name, read_lines(f.path())?)))
+        return Ok(Some((file_name, read_lines(f.path())?)));
     }).fold(vec![], |mut acc, r| {
         match r {
             Ok(None) => (),
