@@ -69,6 +69,11 @@ impl Runner {
                 };
                 res?;
             }
+            if !day.has_test_input_file() {
+                fs::File::create(day.test_input_file_path())?;
+                process::Command::new("git").args(&["add", day.test_input_file_path().as_str()]).status()?;
+
+            }
         }
         return Ok(());
     }

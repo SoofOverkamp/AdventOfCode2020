@@ -43,6 +43,10 @@ impl AocDay {
         format!("./inputs/day{}.txt", self.day)
     }
 
+    pub fn test_input_file_path(&self) -> String {
+        format!("./test_inputs/day{}.txt", self.day)
+    }
+
     pub fn output_file_path(&self, part: &Part) -> String {
         format!("outputs/day{}-{}.txt", self.day, part.as_str())
     }
@@ -53,6 +57,10 @@ impl AocDay {
 
     pub fn has_input_file(&self) -> bool {
         path::Path::new(self.input_file_path().as_str()).exists()
+    }
+
+    pub fn has_test_input_file(&self) -> bool {
+        path::Path::new(self.test_input_file_path().as_str()).exists()
     }
 
     pub fn output_file_age(&self, part: &Part) -> Result<Option<chrono::Duration>, Box<dyn Error>> {
