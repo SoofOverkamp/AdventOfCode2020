@@ -1,10 +1,10 @@
-use std::{fs, process, io};
+use std::{fs, io, process};
 use std::error::Error;
 use std::io::{Read, stderr, stdin, stdout, Write};
 use std::str::FromStr;
 
 use crate::aoc_day::{AocDay, Part};
-use crate::command::{Command, CommandType, Terminal, format_duration};
+use crate::command::{Command, CommandType, format_duration, Terminal};
 use crate::web::WebContext;
 
 pub struct Runner<> {
@@ -72,7 +72,6 @@ impl Runner {
             if !day.has_test_input_file() {
                 fs::File::create(day.test_input_file_path())?;
                 process::Command::new("git").args(&["add", day.test_input_file_path().as_str()]).status()?;
-
             }
         }
         return Ok(());
@@ -192,7 +191,17 @@ impl Runner {
     }
 
     pub fn print_day(&self) {
-        println!("Current Advent of Code Day is the {} of {}", self.day.day, self.day.year); // TODO make impl Display for AOCDay
+        let ordinal_suffix = if self.day.day >= 10 && self.day.day <= 20 {
+            "th"
+        } else {
+            match self.day.day % 10 {
+                1 => "st",
+                2 => "nd",
+                3 => "rd",
+                _ => "th"
+            }
+        };
+        println!("Current Advent of Code Day is the {}{} of {}", self.day.day, ordinal_suffix, self.day.year); // TODO make impl Display for AOCDay
     }
 
     pub fn start_runner(&mut self) -> Result<(), Box<dyn Error>> {

@@ -187,7 +187,7 @@ fn test<F: AOCProgram>(prog: &F, input: &Vec<String>, expected: [Option<&str>; 2
 fn files_to_vec<'a>(day: &str, input_path: &str) -> Result<Vec<(String, Vec<String>)>, Box<dyn Error>> {
     let dir = fs::read_dir(input_path)?;
 
-    let file_name_re = regex::Regex::new(&format!(r"{}.*(?:.txt)?", day))?;
+    let file_name_re = regex::Regex::new(&format!(r"{}(?:-.*)?(?:\..*)", day))?;
 
     let results = dir.map::<io::Result<_>, _>(|f| {
         let f = f?;
