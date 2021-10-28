@@ -6,7 +6,6 @@ use curl::easy;
 
 pub struct WebContext {
     pub cookie_file_path: String,
-    pub cookie_store: String,
     pub lynx_config_path: String,
     pub tmpdir: tempfile::TempDir,
     // TODO implement drop? Should not be necessary
@@ -14,11 +13,8 @@ pub struct WebContext {
 
 impl WebContext {
     pub fn new(cookie_file_path: String, lynx_config_path: String) -> io::Result<WebContext> {
-        let mut cookie_store = String::new();
-        fs::File::open(&cookie_file_path)?.read_to_string(&mut cookie_store)?;
         return Ok(WebContext {
             cookie_file_path,
-            cookie_store,
             lynx_config_path,
             tmpdir: tempfile::Builder::new().suffix("aoc").rand_bytes(6).tempdir()?,
         });
@@ -29,12 +25,10 @@ impl WebContext {
     }
 
     pub fn lynx(&mut self, address: String) -> io::Result<()> {
-        {
-            fs::File::create(&self.cookie_file_path)?.write(self.cookie_store.as_bytes())?;
-        }
         let args = &[
             format!("-cfg={}", self.lynx_config_path),
-            format!("-cookie_file={}", self.cookie_file_path),     // TODO cmd-file
+            format!("-cookie_file={}", self.cookie_file_path),
+            // TODO cmd-file
             address,
         ];
 
@@ -45,14 +39,18 @@ impl WebContext {
         Ok(())
     }
 
-    pub fn curl_base(&mut self) -> Result<Easy, curl::Error> {
+    pub fn curl_base(&mut self) -> Result<Easy, Box<dyn error::Error>> {
+        let mut cookie_store = String::new();
+        fs::File::open(&self.cookie_file_path)?.read_to_string(&mut cookie_store)?;
+
         let mut request = Easy::new();
-        request.follow_location(true)?;
-        request.cookie_list(&self.cookie_store)?;
+        request.follow_location(true).and_then(|_|
+            request.cookie_list(&cookie_store)
+        )?;
         return Ok(request);
     }
 
-    pub fn curl_request<F>(&mut self, url: &str, f: F) -> Result<(), curl::Error>
+    pub fn curl_request<F>(&mut self, url: &str, f: F) -> Result<(), Box<dyn error::Error>>
         where F: FnMut(&[u8]) -> Result<usize, WriteError> + Send + 'static {
         let mut request = self.curl_base()?;
         request.url(url)?;
@@ -61,7 +59,7 @@ impl WebContext {
         return Ok(());
     }
 
-    pub fn curl_post<F>(&mut self, url: &str, data: &[u8], f: F) -> Result<(), curl::Error>
+    pub fn curl_post<F>(&mut self, url: &str, data: &[u8], f: F) -> Result<(), Box<dyn error::Error>>
         where F: FnMut(&[u8]) -> Result<usize, WriteError> + Send + 'static {
         let mut request = self.curl_base()?;
         request.url(url)?;
